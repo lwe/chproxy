@@ -1,0 +1,26 @@
+[core]
+protocols = [ "http", "https", "ftp" ]
+hooks = [
+	"gradle",
+	"!run-my-script.sh"
+]
+
+[gradle]
+protocols = [ "http", "https" ]
+
+[maven]
+protocols = [ "http", "https" ]
+
+[location.adnovum]
+#test = "!scutil --proxy | grep ProxyAutoConfigURLString | grep --silent wpad.adnovum.ch && host cache.adnovum.ch | grep --silent 'has address'"
+test = "!true"
+
+proxy_pac = "http://proxy.adnovum.ch/proxy.pac"
+proxy = "cache.adnovum.ch:1080"
+http_proxy = "cache.adnovum.ch:3128"
+https_proxy = "cache.adnovum.ch:3128"
+ftp_proxy = "cache.adnovum.ch:3128"
+
+no_proxy = [ "localhost", "127.0.0.0/8", "::1", "2000::/3", "fc00::/8",
+	"192.168.254/16", "10.0.0.0/8",
+	"local", "adnovum.ch", "adnovum.hu", "adnovum.pt", "adnovum.sg", "adnovum.vn", "adnovum.net", "adnovum.com" ]
