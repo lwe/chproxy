@@ -1,23 +1,14 @@
 require 'spec_helper'
-require 'change_proxy/hooks/gradle'
+require 'uri'
+require 'change_proxy/gradle/props'
 require 'pp'
 
-RSpec.describe ChangeProxy::Hooks::Gradle do
-	subject { described_class.new('gradle_config' => 'spec/fixtures/gradle.properties', 'protocols' => %w[http rsync]) }
-
-	context '#run' do
-		it 'is skipped when gradle_config is missing' do
-			expect(described_class.new('gradle_config' => 'simply/does/not/exist').run).to be_falsey
-		end
-
-		it 'adds it' do
-			pp subject.run('proxy' => 'cache.example.org:3128', 'rsync_proxy' => 'rsync.example.org:1234')
-		end
-	end
-end
-
-RSpec.describe ChangeProxy::Hooks::GradleProps do
+RSpec.describe ChangeProxy::Gradle::Props do
 	let(:lines) { File.readlines('spec/fixtures/gradle.properties') }
+	let(:generic_uri) { URI.parse('cache:3128') } # without scheme
+	let(:socks_uri) { URI.parse('socks5://cache:3128') }
+	let(:http_uri) { URI.parse('http://cache:3128') }
+
 	subject { described_class.new(lines) }
 
 	context '.load' do
@@ -33,7 +24,7 @@ RSpec.describe ChangeProxy::Hooks::GradleProps do
 	end
 
 	context '#initialize' do
-		it 'removes all occurences of systemProp.*.proxy and nonProxy' do
+		it 'removes all occurences of systemProp.*.proxy, nonProxy and MARK: chproxy' do
 			expect(subject.lines).to eq ["#org.gradle.java.home=/Library/Java/Home\n",
  				"org.gradle.java.home=/Library/Java/JavaVirtualMachines/jdk1.8.0_141.jdk/Contents/Home\n",
 				"\n",
@@ -45,28 +36,40 @@ RSpec.describe ChangeProxy::Hooks::GradleProps do
 		end
 	end
 
+	context '#changed?' do
+		subject { described_class.new(["my.property=foo\n"])}
+
+		it 'returns falsey if there are no changes (compared to the original)' do
+			expect(subject.changed?).to be_falsey
+		end
+
+		it 'returns truthy if there are differences' do
+			subject.add 'http', URI.parse('proxy.example.org:3128')
+			expect(subject.changed?).to be_truthy
+		end
+	end
+
 	context '#add' do
-		it 'skips it when proxy is nil or empty' do
+		it 'skips it when proxy is nil' do
 			subject.add 'http', nil
-			subject.add 'http', ''
 			expect(subject.lines).to_not include(/\AsystemProp\..*\.proxyHost/)
 		end
 
 		it 'appends a proxy entry to the existing config file' do
-			subject.add 'http', 'proxy.example.org:3128'
+			subject.add 'http', URI.parse('proxy.example.org:3128')
 			expect(subject.lines).to include("systemProp.http.proxyHost=proxy.example.org\n", "systemProp.http.proxyPort=3128\n")
 		end
 
 		it 'appends a proxy entry with nonProxy hosts' do
-			subject.add 'https', 'proxy.example.org:3128', %w[localhost example.org]
+			subject.add 'https', URI.parse('proxy.example.org:3128'), %w[localhost example.org]
 			expect(subject.lines).to include("systemProp.https.proxyHost=proxy.example.org\n",
 				"systemProp.https.proxyPort=3128\n",
 				"systemProp.https.nonProxyHosts=localhost|example.org\n")
 		end
 
 		it 'wraps the added proxy in a BEGIN/END comment' do
-			subject.add 'http', 'proxy.example.org:3128'
-			expect(subject.lines).to include(/# BEGIN: chproxy \(created on .+\)/, "# END: chproxy\n")
+			subject.add 'http', URI.parse('proxy.example.org:3128')
+			expect(subject.lines).to include(/# MARK: chproxy \(auto.+\): BEGIN\n\z/, /# MARK: chproxy.*: END\n\z/)
 		end
 	end
 end
