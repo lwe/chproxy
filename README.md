@@ -6,8 +6,8 @@ TODO: Delete this and the text above, and describe your gem
 
 ## Plugins
 
-- shell (bash, zsh)
-- gradle
+- -shell (bash, zsh)-
+- :+1: gradle
 - maven (m2)
 - Docker on Mac
 - Spotify on Mac

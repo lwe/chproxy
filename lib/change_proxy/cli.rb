@@ -3,7 +3,9 @@ require 'pathname'
 
 require 'change_proxy/version'
 require 'change_proxy/env'
+
 require 'change_proxy/gradle/editor'
+require 'change_proxy/maven/editor'
 
 module ChangeProxy
 	class CLI < Thor
@@ -31,7 +33,27 @@ DESC
 				File.open(config, 'w') { |f| f.write(props) }
 				say_status 'UPDATED', "chproxy: gradle config updated (#{config})", :yellow
 			else
-				say_status 'SKIPPED', "chproxy: gradle config still up-to-date (#{config})", :green
+				say_status 'SKIPPED', "chproxy: gradle config still up-to-date, nothing changed (#{config})", :green
+			end
+		end
+
+		desc 'maven [<config>]', 'Updates the maven proxy settings.'
+		method_option '--dry-run', aliases: '-n', type: :boolean, desc: 'Do not change configuration file, put print to STDOUT instead.'
+		method_option '--protocols', aliases: '-p', type: :string, default: 'http,https', desc: 'Protocols to write', banner: 'http,https'
+		def maven(config = "#{Thor::Util.user_home}/.m2/settings.xml")
+			editor = ChangeProxy::Maven::Editor.new(
+				config,
+				options['protocols'].split(/\s*[,\s]\s*/).map(&:strip).reject(&:empty?))
+
+			settings = editor.rewrite(ChangeProxy::Env.env)
+
+			if options['dry-run']
+				puts settings
+			elsif settings.changed?
+				File.open(config, 'w') { |f| f.write(settings) }
+				say_status 'UPDATED', "chproxy: maven settings updated (#{config})", :yellow
+			else
+				say_status 'SKIPPED', "chproxy: maven config still up-to-date, nothing changed (#{config})", :green
 			end
 		end
 
