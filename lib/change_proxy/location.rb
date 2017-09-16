@@ -32,4 +32,4 @@ module ChangeProxy
 	end
 end
 
-ChangeProxy::Location::NOPROXY = ChangeProxy::Location.new('(no-proxy)', 'test' => true)
+ChangeProxy::Location::NOPROXY = ChangeProxy::Location.new('(direct)', 'test' => true)

@@ -4,6 +4,8 @@ require 'change_proxy/version'
 require 'change_proxy/config'
 require 'change_proxy/hooks'
 
+require 'change_proxy/cmds/locations'
+
 module ChangeProxy
 	class CLI < Thor
 		map %w[s st] => :status
@@ -13,30 +15,32 @@ module ChangeProxy
 			puts cfg.active_location.id
 		end
 
+		include ChangeProxy::Cmds::Locations
+
 		desc "switch ...HOOKS", "Update da plugins bro"
 		def switch(*hooks)
-			# cfg = TOML.load_file('spec/fixtures/chproxy.toml')
-			# loc = cfg['location'].map do |key, options|
-			# 	ChangeProxy::Location.new(key, options)
-			# end.find(&:active?)
-			#
-			# if hooks.include?('shell')
-			# 	plugin = ChangeProxy::Plugins::Shell.new({})
-			# 	plugin.shell_eval(STDOUT, loc)
-			# 	puts "# Hooks: #{hooks}"
-			# end
-			#
-			# hooks.each do |hook|
-			# 	puts "ruby -Ilib ./exe/chproxy switch-#{hook}"
-			# end
-			switch_shell
+			cfg = Config.load('spec/fixtures/chproxy.toml')
+			shell = ChangeProxy::Hooks::Shell.new(cfg)
+			shell.run
+
+			unless hooks.empty?
+				puts ""
+				puts "# Hooks"
+				hooks.each do |hook|
+					if Hooks::REGISTRY[hook]
+						puts "#{$0} hook-#{hook}"
+					else
+						puts "chproxy-hook-#{hook}"
+					end
+				end
+			end
 		end
 
 		ChangeProxy::Hooks::REGISTRY.each do |hook, clazz|
-			desc "switch-#{hook}", "Switch #{hook} to current proxy configuration, based on ENV"
-			define_method("switch_#{hook}") do
+			desc "hook-#{hook}", "Switch #{hook} to current proxy configuration, based on ENV", hide: true
+			define_method("hook_#{hook}") do
 				cfg = Config.load('spec/fixtures/chproxy.toml')
-				runner = clazz.new(cfg)
+				runner = clazz.new(cfg.options[hook])
 				runner.run
 			end
 		end

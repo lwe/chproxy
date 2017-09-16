@@ -12,8 +12,7 @@ protocols = [ "http", "https" ]
 protocols = [ "http", "https" ]
 
 [location.adnovum]
-#test = "!scutil --proxy | grep ProxyAutoConfigURLString | grep --silent wpad.adnovum.ch && host cache.adnovum.ch | grep --silent 'has address'"
-test = "!true"
+test = "!scutil --proxy | grep ProxyAutoConfigURLString | grep --silent wpad.adnovum.ch && host cache.adnovum.ch | grep --silent 'has address'"
 
 proxy_pac = "http://proxy.adnovum.ch/proxy.pac"
 proxy = "cache.adnovum.ch:1080"
