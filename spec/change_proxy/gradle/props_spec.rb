@@ -1,13 +1,9 @@
 require 'spec_helper'
-require 'uri'
+require 'change_proxy/proxy_uri'
 require 'change_proxy/gradle/props'
-require 'pp'
 
 RSpec.describe ChangeProxy::Gradle::Props do
 	let(:lines) { File.readlines('spec/fixtures/gradle.properties') }
-	let(:generic_uri) { URI.parse('cache:3128') } # without scheme
-	let(:socks_uri) { URI.parse('socks5://cache:3128') }
-	let(:http_uri) { URI.parse('http://cache:3128') }
 
 	subject { described_class.new(lines) }
 
@@ -56,19 +52,19 @@ RSpec.describe ChangeProxy::Gradle::Props do
 		end
 
 		it 'appends a proxy entry to the existing config file' do
-			subject.add 'http', URI.parse('proxy.example.org:3128')
+			subject.add 'http', ChangeProxy::ProxyURI.parse('proxy.example.org:3128')
 			expect(subject.lines).to include("systemProp.http.proxyHost=proxy.example.org\n", "systemProp.http.proxyPort=3128\n")
 		end
 
 		it 'appends a proxy entry with nonProxy hosts' do
-			subject.add 'https', URI.parse('proxy.example.org:3128'), %w[localhost example.org]
+			subject.add 'https', ChangeProxy::ProxyURI.parse('proxy.example.org:3128'), %w[localhost example.org]
 			expect(subject.lines).to include("systemProp.https.proxyHost=proxy.example.org\n",
 				"systemProp.https.proxyPort=3128\n",
 				"systemProp.https.nonProxyHosts=localhost|example.org\n")
 		end
 
 		it 'wraps the added proxy in a BEGIN/END comment' do
-			subject.add 'http', URI.parse('proxy.example.org:3128')
+			subject.add 'http', ChangeProxy::ProxyURI.parse('proxy.example.org:3128')
 			expect(subject.lines).to include(/# MARK: chproxy \(auto.+\): BEGIN\n\z/, /# MARK: chproxy.*: END\n\z/)
 		end
 	end
