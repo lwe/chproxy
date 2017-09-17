@@ -22,7 +22,7 @@ module ChangeProxy
 				ChangeProxy::IntelliJ::Settings.load(file).tap do |props|
 					props.set(
 						env.proxy(:http),
-						env.proxy?(:auto) ? env.proxy(:auto) : nil,
+						env.proxy_raw(:auto),
 						env.no_proxy)
 				end
 			end

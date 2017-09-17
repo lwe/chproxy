@@ -20,6 +20,10 @@ module ChangeProxy
 			protocol && fetch_proxy(protocol) || fetch_proxy(nil)
 		end
 
+		def proxy_raw(protocol = nil)
+			fetch_proxy(protocol)
+		end
+
 		def proxy?(protocol = nil)
 			fetch_proxy(nil) && fetch_proxy(protocol)
 		end

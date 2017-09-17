@@ -146,6 +146,16 @@ RSpec.describe ChangeProxy::Env do
 		end
 	end
 
+	context '#proxy_raw (lookup without fallback)' do
+		it 'returns nil when "http_proxy" is not set, but "proxy" is' do
+			expect(proxy_env.proxy_raw(:http)).to be_nil
+		end
+
+		it 'returns http://proxy:3000 when "http_proxy" is set' do
+			expect(proto_proxy_env.proxy_raw(:http)).to eq ChangeProxy::ProxyURI.parse('http://proxy:3000')
+		end
+	end
+
 	context '#no_proxy' do
 		it 'returns an empty array when not set' do
 			expect(none_env.no_proxy).to eq []
