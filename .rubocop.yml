@@ -1,0 +1,27 @@
+AllCops:
+  Exclude:
+    - 'bin/*'
+
+Metrics/LineLength:
+  Max: 120
+  Exclude:
+    - 'spec/**/*.rb'
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*.rb'
+
+Metrics/AbcSize:
+  Max: 17
+
+Style/Documentation:
+  Exclude:
+    - chproxy.rb
+
+Style/FrozenStringLiteralComment:
+  Exclude:
+    - chproxy.rb
+
+Layout/SpaceAroundOperators:
+  Exclude:
+    - chproxy.rb

@@ -1,0 +1,8 @@
+<settings>
+	<offline>
+		<things/>
+	</offline>
+	<!-- My comment -->
+
+<proxies><proxy><id>chproxy-maven-http</id><active>true</active><protocol>http</protocol><host>cache</host><port>3128</port></proxy></proxies>
+</settings>

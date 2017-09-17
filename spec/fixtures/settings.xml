@@ -1,32 +1,23 @@
 <settings>
-	<!--
-	<mirrors>
-		<mirror>
-			<id>adnexus</id>
-			<mirrorOf>*</mirrorOf>
-			<url>http://adnexus:8081/nexus/content/groups/adnovumpublic</url>
-		</mirror>
-	</mirrors>
-	-->
 	<offline>
 		<things></things>
 	</offline>
 	<proxies>
 		<proxy>
-			<id>adnproxyHTTP</id>
+			<id>httpProxy</id>
 			<active>true</active>
 			<protocol>http</protocol>
-			<host>cache.adnovum.ch</host>
+			<host>cache.example.net</host>
 			<port>3128</port>
-			<nonProxyHosts>localhost|127.0.0.1|*.adnovum.ch|*.adnovum.sg|*.adnovum.hu|192.168.*.*|10.*.*.*</nonProxyHosts>
+			<nonProxyHosts>localhost|127.0.0.1|example.org|example.net</nonProxyHosts>
 		</proxy>
 		<proxy>
-			<id>adnproxyHTTPS</id>
+			<id>httpsProxy</id>
 			<active>true</active>
 			<protocol>https</protocol>
-			<host>cache.adnovum.ch</host>
+			<host>cache.example.net</host>
 			<port>3128</port>
-			<nonProxyHosts>localhost|127.0.0.1|*.adnovum.ch|*.adnovum.sg|*.adnovum.hu|192.168.*.*|10.*.*.*</nonProxyHosts>
+			<nonProxyHosts>localhost|127.0.0.1|example.org|example.net</nonProxyHosts>
 		</proxy>
 	</proxies>
 </settings>

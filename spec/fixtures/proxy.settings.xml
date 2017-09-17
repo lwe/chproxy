@@ -1,10 +1,10 @@
 <application>
   <component name="HttpConfigurable">
     <option name="USE_HTTP_PROXY" value="true" />
-    <option name="PROXY_HOST" value="cache.adnovum.ch" />
+    <option name="PROXY_HOST" value="cache" />
     <option name="PROXY_PORT" value="3128" />
-    <option name="PROXY_EXCEPTIONS" value="*.adnovum.ch, *.adnovum.hu" />
+    <option name="PROXY_EXCEPTIONS" value="example.org, example.net" />
     <option name="USE_PAC_URL" value="true" />
-    <option name="PAC_URL" value="http://proxy.adnovum.ch/proxy.pac" />
+    <option name="PAC_URL" value="http://proxy.example.net/proxy.pac" />
   </component>
 </application>
