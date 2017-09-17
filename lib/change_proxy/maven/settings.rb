@@ -35,14 +35,14 @@ module ChangeProxy
 			end
 
 			def to_s
-				doc.to_s
+				doc.to_s.sub(/>\s*<proxies>/m, ">\n\n<proxies>")
 			end
 
 			private
 
 			def proxies_el
 				@proxies_el ||= doc.root.add_element('proxies').tap do |el|
-					doc.root.add_text("\n\n")
+					doc.root.add_text("\n")
 				end
 			end
 
