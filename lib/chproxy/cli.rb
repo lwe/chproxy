@@ -5,6 +5,7 @@ require 'pathname'
 
 require 'chproxy/env'
 require 'chproxy/editor'
+require 'chproxy/init_command'
 
 require 'chproxy/gradle/props'
 require 'chproxy/maven/settings'
@@ -18,10 +19,17 @@ module Chproxy
   class CLI < Thor
     class_option '--dry-run', aliases: '-n', type: :boolean,
                               desc: 'Do not change configuration, put print to STDOUT instead.'
+    class_option '--protocols', aliases: '-p', type: :string, default: 'http,https',
+                                desc: 'Protocols to write', banner: 'http,https'
+
+    desc 'init [-] <...hooks>', 'Foobar'
+    method_option '--config', aliases: '-c', type: :string, default: "#{Thor::Util.user_home}/.chproxy"
+    def init(output = nil, *hooks)
+      cmd = Chproxy::InitCommand.new(options['config-dir'], protocols, chproxy_cli)
+      cmd.run(output, hooks)
+    end
 
     desc 'gradle [<config>]', 'Updates the gradle proxy configuration.'
-    method_option '--protocols', aliases: '-p', type: :string, default: 'http,https',
-                                 desc: 'Protocols to write', banner: 'http,https'
     def gradle(config = "#{Thor::Util.user_home}/.gradle/gradle.properties")
       editor = Chproxy::Editor.new(Chproxy::Gradle::Props, config, protocols)
       props = editor.rewrite(Chproxy::Env.env)
@@ -29,8 +37,6 @@ module Chproxy
     end
 
     desc 'maven [<config>]', 'Updates the maven proxy settings.'
-    method_option '--protocols', aliases: '-p', type: :string, default: 'http,https',
-                                 desc: 'Protocols to write', banner: 'http,https'
     def maven(config = "#{Thor::Util.user_home}/.m2/settings.xml")
       editor = Chproxy::Editor.new(Chproxy::Maven::Settings, config, protocols)
       settings = editor.rewrite(Chproxy::Env.env)
@@ -55,6 +61,10 @@ module Chproxy
     end
 
     private
+
+    def chproxy_cli
+      ::ENV.fetch('CHPROXY_BIN', 'chproxy')
+    end
 
     def update(settings, output, label: 'configuration')
       if dry_run?

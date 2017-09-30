@@ -1,18 +1,15 @@
 # The missing proxy management CLI: _chproxy_
 
-Most \*nix utilities support proxy environment variables, like `proxy`, `http_proxy` or `no_proxy`. However, some don't play so well, including Java tools like _gradle_ or _maven_. Switching between work :necktie: and other :tshirt: environments usually requires to change proxies and environments. While changing the `ENV` is rather simple, having it propagated to all tools is tricky.
-
-The `chproxy` helps and currently supports changing the proxy settings for:
-
-- :white_check_mark: gradle, with `chproxy gradle [--dry-run] [<config>]`
-- :white_check_mark: maven, with `chproxy maven [--dry-run] [<config>]`
-- :white_check_mark: IntelliJ (supports proxy.pac) and other JetBrains products, with `chproxy intellij [--dry-run] [<config>]`
-
-The `chproxy` CLI works by reading the current environment proxy variables and updating the tool specific configuration.
+`chproxy` is an opinionated tool to switch between multiple proxy settings. In addition providing
+support for tools that do not work with proxy environment variables, like `proxy`, `http_proxy` or
+`no_proxy`. Switching between work :necktie: and other :tshirt: environments usually requires to
+change proxies and environments. While changing the `ENV` is rather simple, having it propagated to
+all tools is tricky.
 
 ## Installation
 
-Make sure you have an up-to-date Ruby (at least 2.0) installed on your system and are running macOS or Linux.
+Make sure you have an up-to-date Ruby (at least 2.0) installed on your system and are running macOS
+or Linux.
 
 ### Choose your installation method:
 
@@ -33,41 +30,53 @@ Make sure you have an up-to-date Ruby (at least 2.0) installed on your system an
 
 ## Usage
 
-Best used in your shell scripts (e.g. `~/bin/proxy.sh`) to change the switch proxies:
+1. Create a file called `~/.chproxy`, this file is sourced from the `chpup` alias, an example script
+   could be as follows:
+   ```bash
+   #!/bin/bash
 
-```bash
-#!/usr/bin/env bash
+   # macOS command to check for an autoconfigured proxy
+   function isWork() {
+     scutil --proxy | grep ProxyAutoConfigURLString | grep --silent wpad.example.net && \
+       host cache.example.net | grep --silent 'has address'     
+   }
+   if isWork; then
+     export proxy="cache:1080"
+     export {http,https}_proxy="cache:3128"
+     export no_proxy="example.net,example.org"
+     echo "Using: 👔"
+   fi
+   ```
 
-# Some test to check the current location.
-function isWork() {
-  scutil --proxy | grep ProxyAutoConfigURLString | grep --silent wpad.example.net && \
-    host cache.example.net | grep --silent 'has address'
-}
+2. Add the following to your `.bashrc` or `.zshrc` to enable the `chpup` alias with the gradle and
+   maven plugins. This also runs `chpup` directly.
+   ```bash
+   eval "$(chproxy init - gradle maven)"
+   ```
 
-echo 'unset proxy {http,https,no,auto}_proxy PROXY {HTTP,HTTPS,NO,AUTO}_PROXY'
+3. In addition, when switching networks, run `chpup` anytime. And, yeah in all your open shells.
 
-if isWork(); then
-  echo 'export proxy=cache:1080'
-  echo 'export {http,https}_proxy=cache:3128'
-  echo 'export auto_proxy=http://cache.example.net/proxy.pac'
-  echo 'export no_proxy=.local,example.net,example.org,192.168.0.0/16'
-fi
-echo 'chproxy gradle'
-echo 'chproxy maven'
-echo 'chproxy intellij'
-```
+## Support
 
-...and then use like:
+The `chproxy` helps and currently supports changing the proxy settings for:
 
-```bash
-eval "$(./bin/proxy.sh)"
-```
+- :white_check_mark: gradle, with `chproxy gradle [--dry-run] [<config>]`
+- :white_check_mark: maven, with `chproxy maven [--dry-run] [<config>]`
+- :white_check_mark: IntelliJ (supports proxy.pac) and other JetBrains products, with `chproxy intellij [--dry-run] [<config>]`
+
+The `chproxy [tool]` CLI works by reading the current environment proxy variables and updating the
+tool specific configuration.
 
 ## Development
 
-After checking out the repo, run `./bin/setup` to install dependencies. Then, run `./bin/rspec spec` to run the tests. You can also run `./bin/console` for an interactive prompt that will allow you to experiment.
+After checking out the repo, run `./bin/setup` to install dependencies. Then, run `./bin/rspec spec`
+to run the tests. You can also run `./bin/console` for an interactive prompt that will allow you to
+experiment.
 
-To install this gem onto your local machine, run `./bin/rake install`. To release a new version, update the version number in `version.rb`, and then run `./bin/rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+To install this gem onto your local machine, run `./bin/rake install`. To release a new version,
+update the version number in `version.rb`, and then run `./bin/rake release`, which will create a
+git tag for the version, push git commits and tags, and push the `.gem` file to
+[rubygems.org](https://rubygems.org).
 
 ### Git Commit Messages
 
