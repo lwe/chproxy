@@ -10,7 +10,7 @@ module Chproxy
     attr_reader :config, :protocols, :cli
 
     def initialize(config, protocols = [], cli = 'chproxy')
-      @config = config
+      @config = File.expand_path(config)
       @protocols = protocols.map(&:downcase).uniq
       @cli = cli
     end
@@ -22,7 +22,6 @@ module Chproxy
 
     private
 
-    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def run_eval(hooks)
       puts <<~SH
         function chpup() {
@@ -33,16 +32,13 @@ module Chproxy
           fi
 
           #{wrap_hooks(hooks)}
-          echo "⚠️ Run in all open shells to update the ENV proxy vars properly."
         }
         chpup >/dev/null
       SH
     end
-    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def wrap_hooks(hooks)
-      protos = protocols.join(',')
-      hooks.map { |h| "#{cli} #{escape(h)} --protocols=#{escape(protos)}" }.join("\n  ")
+      hooks.uniq.sort.map { |h| "#{cli} #{command(*h.split(':', 2))}" }.join("\n  ")
     end
 
     def run_help
@@ -56,16 +52,16 @@ module Chproxy
       SH
     end
 
+    def command(cmd, argument = nil)
+      "#{escape(cmd)} --protocols=#{escape(protocols.join(','))} #{command_args(cmd, argument)}".strip
+    end
+
+    def command_args(cmd, argument)
+      return "--intellij=#{escape(argument)}" if cmd == 'intellij' && argument
+    end
+
     def all_protocols
-      (protocols + %w[auto no]).uniq
-    end
-
-    def proxy_files
-      Dir["#{dir}/proxy-*"].sort
-    end
-
-    def post_files
-      Dir["#{dir}/post-*"].sort
+      (protocols + %w[auto no]).uniq.sort
     end
 
     def shellrc
