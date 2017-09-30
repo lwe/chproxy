@@ -5,7 +5,15 @@ require 'shellwords'
 module Chproxy
   # Provide an init system for the shell.
   class InitCommand
-    EVAL = '-'
+    EVAL = '-'.freeze
+
+    def self.escape(str)
+      Shellwords.escape(str)
+    end
+
+    def self.undent(str)
+      str.gsub(/^[ \t]{#{(str.slice(/^[ \t]+/) || '').length}}/, '')
+    end
 
     attr_reader :config, :protocols, :cli
 
@@ -23,18 +31,19 @@ module Chproxy
     private
 
     def run_eval(hooks)
-      puts <<~SH
+      sh = <<-SH
         function chpup() {
-          unset proxy {#{escape(all_protocols.join(','))}}_proxy
-          unset PROXY {#{escape(all_protocols.join(',').upcase)}}_PROXY
-          if [ -f "#{escape(config)}" ]; then
-            . "#{escape(config)}" $*
+          unset proxy {#{self.class.escape(all_protocols.join(','))}}_proxy
+          unset PROXY {#{self.class.escape(all_protocols.join(',').upcase)}}_PROXY
+          if [ -f "#{self.class.escape(config)}" ]; then
+            . "#{self.class.escape(config)}" $*
           fi
 
           #{wrap_hooks(hooks)}
         }
         chpup >/dev/null
       SH
+      puts self.class.undent(sh)
     end
 
     def wrap_hooks(hooks)
@@ -42,7 +51,7 @@ module Chproxy
     end
 
     def run_help
-      puts <<~SH
+      sh = <<-SH
         \# 1: Add the following to your #{shellrc}, this creates the chpup() function.
         \#    Check `chproxy help init` for details.
         eval "\$(#{cli} init - gradle intellij:AndroidStudio)"
@@ -50,14 +59,16 @@ module Chproxy
         \# 2: Create a ~/.chproxy script that sets the proxy, http_proxy and other variables. Like:
         echo "proxy=example.org" > ~/.chproxy
       SH
+      puts self.class.undent(sh)
     end
 
     def command(cmd, argument = nil)
-      "#{escape(cmd)} --protocols=#{escape(protocols.join(','))} #{command_args(cmd, argument)}".strip
+      protos = self.class.escape(protocols.join(','))
+      "#{self.class.escape(cmd)} --protocols=#{protos} #{command_args(cmd, argument)}".strip
     end
 
     def command_args(cmd, argument)
-      return "--intellij=#{escape(argument)}" if cmd == 'intellij' && argument
+      return "--intellij=#{self.class.escape(argument)}" if cmd == 'intellij' && argument
     end
 
     def all_protocols
@@ -69,10 +80,6 @@ module Chproxy
       when /zsh/ then '~/.zshrc'
       else '~/.bashrc'
       end
-    end
-
-    def escape(str)
-      Shellwords.escape(str)
     end
   end
 end

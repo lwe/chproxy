@@ -13,8 +13,8 @@ module Chproxy
     class Settings
       attr_reader :doc, :orig_doc
 
-      ENABLED = '<option name="USE_HTTP_PROXY" value="true" />'
-      TEMPLATE = <<~XML.strip
+      ENABLED = '<option name="USE_HTTP_PROXY" value="true" />'.freeze
+      TEMPLATE = <<-XML.strip
         <application>
           <component name="HttpConfigurable">%s
             <option name="PROXY_HOST" value="%s" />

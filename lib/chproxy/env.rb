@@ -10,8 +10,8 @@ module Chproxy
   # * `auto_proxy`, expects an URL to a PAC file
   # * `no_proxy`
   class Env
-    PROXY = 'proxy'
-    NO_PROXY = 'no_proxy'
+    PROXY = 'proxy'.freeze
+    NO_PROXY = 'no_proxy'.freeze
 
     def self.env
       new ::ENV

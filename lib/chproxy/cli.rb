@@ -25,7 +25,7 @@ module Chproxy
     desc 'init [-] <...hooks>', 'Foobar'
     method_option '--config', aliases: '-c', type: :string, default: "#{Thor::Util.user_home}/.chproxy"
     def init(output = nil, *hooks)
-      cmd = Chproxy::InitCommand.new(options['config-dir'], protocols, chproxy_cli)
+      cmd = Chproxy::InitCommand.new(options['config'], protocols, chproxy_cli)
       cmd.run(output, hooks)
     end
 

@@ -11,8 +11,14 @@ Metrics/BlockLength:
   Exclude:
     - 'spec/**/*.rb'
 
+Metrics/MethodLength:
+  Max: 11
+
 Metrics/AbcSize:
-  Max: 17
+  Max: 20
+
+Style/RedundantFreeze:
+  Enabled: false
 
 Style/Documentation:
   Exclude:

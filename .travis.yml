@@ -6,4 +6,4 @@ rvm:
 before_install: gem install bundler --pre
 script:
   - ./bin/rspec spec
-  - ./bin/rubocop -D
+  - ./bin/rubocop --display-cop-names
