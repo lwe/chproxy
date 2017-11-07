@@ -33,21 +33,21 @@ module Chproxy
     def run_eval(hooks)
       sh = <<-SH
         function chpup() {
-          local _shasum="$(command -v sha1sum || command -v shasum)"
-          local _before="$(env | grep -i '^[^=]*proxy=' | "$_shasum")"
+          _shasum="$(command -v sha1sum || command -v shasum)"
+          _before="$(env | grep -i '^[^=]*proxy=' | "$_shasum")"
           unset proxy {#{self.class.escape(all_protocols.join(','))}}_proxy
           unset PROXY {#{self.class.escape(all_protocols.join(',').upcase)}}_PROXY
           if [ -f "#{self.class.escape(config)}" ]; then
-            . "#{self.class.escape(config)}" $*
+            . "#{self.class.escape(config)}" "$@"
           fi
-          local after="$(env | grep -i '^[^=]*proxy=' | "$_shasum")"
+          _after="$(env | grep -i '^[^=]*proxy=' | "$_shasum")"
           [[ "$_before" == "$_after" ]] && return 0
 
           #{wrap_hooks(hooks)}
         }
-        chpup >/dev/null
+        chpup >/dev/null 2>&1
       SH
-      puts self.class.undent(sh)
+      self.class.undent(sh)
     end
 
     def wrap_hooks(hooks)
@@ -63,7 +63,7 @@ module Chproxy
         \# 2: Create a ~/.chproxy script that sets the proxy, http_proxy and other variables. Like:
         echo "proxy=example.org" > ~/.chproxy
       SH
-      puts self.class.undent(sh)
+      self.class.undent(sh)
     end
 
     def command(cmd, argument = nil)
