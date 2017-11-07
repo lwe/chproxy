@@ -2,6 +2,7 @@
 
 require 'thor'
 require 'pathname'
+require 'file_utils'
 
 require 'chproxy/env'
 require 'chproxy/editor'
@@ -33,25 +34,34 @@ module Chproxy
     def gradle(config = "#{Thor::Util.user_home}/.gradle/gradle.properties")
       editor = Chproxy::Editor.new(Chproxy::Gradle::Props, config, protocols)
       props = editor.rewrite(Chproxy::Env.env)
-      update(props, config, label: 'gradle properties')
+      executor = Chproxy::Executor.rewriter(self, config,
+        dry_run: dry_run?,
+        label: 'gradle properties')
+      executor.update(settings.to_s)
     end
 
     desc 'maven [<config>]', 'Updates the maven proxy settings.'
     def maven(config = "#{Thor::Util.user_home}/.m2/settings.xml")
       editor = Chproxy::Editor.new(Chproxy::Maven::Settings, config, protocols)
       settings = editor.rewrite(Chproxy::Env.env)
-      update(settings, config, label: 'maven settings')
+      executor = Chproxy::Executor.rewriter(self, config,
+        dry_run: dry_run?,
+        label: 'maven settings')
+      executor.update(settings.to_s)
     end
 
-    desc 'intellij [<config>]', 'Updates the IntelliJ (or other JetBrains products) proxy settings.'
-    method_option '--intellij', aliases: '-j', banner: '<product>', default: 'IntelliJIdea',
+    desc 'intellij', 'Updates the IntelliJ (or other JetBrains products) proxy settings.'
+    method_option '--variant', aliases: '-v', banner: '<product>', default: 'IntelliJIdea',
                                 desc: 'The IntelliJ product to update, one of IntelliJIdea, ' \
                                       'IdealC, RubyMine, PhpStorm, WebStorm or AndroidStudio.'
-    def intellij(config = nil)
-      config ||= "#{Chproxy::IntelliJ::Editor.settings_root(options['intellij'])}/options/proxy.settings.xml"
-      editor = Chproxy::IntelliJ::Editor.new(config)
+    def intellij(dir = nil)
+      config = "#{Chproxy::IntelliJ::Editor.settings_file(options['intellij'])}"
+      editor = Chproxy::IntelliJ::Editor.new
       settings = editor.rewrite(Chproxy::Env.env)
-      update(settings, config, label: "#{options['intellij']} settings")
+      executor = Chproxy::Executor.deleter(self, config,
+        dry_run: dry_run?,
+        label: "#{options['intellij']} settings"))
+      executor.write(settings.doc)
     end
 
     map %w[--version -V version] => :version
@@ -64,17 +74,6 @@ module Chproxy
 
     def chproxy_cli
       ::ENV.fetch('CHPROXY_BIN', 'chproxy')
-    end
-
-    def update(settings, output, label: 'configuration')
-      if dry_run?
-        puts settings.to_s
-      elsif settings.changed?
-        File.open(output.to_s, 'w') { |f| f.write(settings.to_s) }
-        say_status 'UPDATED', "chproxy: #{label} updated (#{output})", :yellow
-      else
-        say_status 'SKIPPED', "chproxy: #{label} still up-to-date, nothing changed (#{output})", :green
-      end
     end
 
     def dry_run?

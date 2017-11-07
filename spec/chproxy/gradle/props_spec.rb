@@ -36,19 +36,6 @@ RSpec.describe Chproxy::Gradle::Props do
     end
   end
 
-  context '#changed?' do
-    subject { described_class.new(["my.property=foo\n"]) }
-
-    it 'returns falsey if there are no changes (compared to the original)' do
-      expect(subject.changed?).to be_falsey
-    end
-
-    it 'returns truthy if there are differences' do
-      subject.add 'http', URI.parse('proxy.example.org:3128')
-      expect(subject.changed?).to be_truthy
-    end
-  end
-
   context '#add' do
     it 'skips it when proxy is nil' do
       subject.add 'http', nil

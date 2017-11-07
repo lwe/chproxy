@@ -6,20 +6,15 @@ module Chproxy
   module Maven
     # Represents a Maven (2.x) settings.xml.
     class Settings
-      attr_reader :doc, :orig_doc_raw
+      attr_reader :doc
 
       def self.load(path)
         new REXML::Document.new(File.read(path))
       end
 
       def initialize(doc)
-        @orig_doc_raw = doc.to_s
         @doc = doc
         @doc.elements.delete('settings/proxies')
-      end
-
-      def changed?
-        to_s != orig_doc_raw
       end
 
       def add(protocol, proxy, no_proxy = [])

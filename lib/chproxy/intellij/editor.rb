@@ -8,24 +8,22 @@ module Chproxy
   module IntelliJ
     # Custom Editor for IntelliJ settings, because IntelliJ only supports on/off modes.
     class Editor
-      attr_reader :file
+      SETTINGS_XML = 'proxy.settings.xml'
 
-      def self.settings_root(product)
-        Dir["#{Thor::Util.user_home}/Library/Preferences/#{product}*",
-            "#{Thor::Util.user_home}/.#{product}*"].sort.last || "#{Thor::Util.user_home}/.#{product}2017.2"
-      end
+      def self.settings_file(product)
+        dir = Dir["#{Thor::Util.user_home}/Library/Preferences/#{product}*",
+                  "#{Thor::Util.user_home}/.#{product}*"].sort.last
 
-      def initialize(file)
-        raise Thor::Error, "Configuration file not found: #{file}" if !file || !File.exist?(file)
+        raise Thor::Error, "#{product} configuration directory not found: #{dir}" if !dir || !File.directory?(dir)
 
-        @file = file
+        File.join(dir, 'options', SETTINGS_XML)
       end
 
       def rewrite(env)
-        Chproxy::IntelliJ::Settings.load(file).tap do |props|
-          props.set(env.proxy(:http),
-                    env.proxy_raw(:auto),
-                    env.no_proxy)
+        Chproxy::IntelliJ::Settings.new.tap do |settings|
+          settings.set env.proxy(:http),
+                       env.proxy_raw(:auto),
+                       env.no_proxy
         end
       end
     end

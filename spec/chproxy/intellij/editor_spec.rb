@@ -5,20 +5,19 @@ require 'chproxy/env'
 require 'chproxy/intellij/editor'
 
 RSpec.describe Chproxy::IntelliJ::Editor do
-  subject { described_class.new('spec/fixtures/proxy.settings.xml') }
+  subject { described_class.new }
 
-  context '.settings_root' do
-    it 'returns the default settings root for your OS by product' do
-      expect(described_class.settings_root('IntelliJIdea')).to match %r{/\.?IntelliJIdea\d{4}\.\d\z}
-      expect(described_class.settings_root('IdeaC')).to match %r{/\.?IdeaC\d{4}\.\d\z}
-      expect(described_class.settings_root('AndroidStudio')).to match %r{/\.?AndroidStudio\d{4}}
+  context '.settings_file' do
+    it 'returns the default settings file for your OS by product' do
+      pending 'depends on locally installed JetBrains products'
+      expect(described_class.settings_file('IntelliJIdea')).to match %r{/\.?IntelliJIdea\d{4}\.\d/options/proxy\.settings\.xml\z}
+      expect(described_class.settings_file('IdeaC')).to match %r{/\.?IdeaC\d{4}\.\d/options/proxy\.settings\.xml\z}
+      expect(described_class.settings_file('AndroidStudio')).to match %r{/\.?AndroidStudio\d{4}/options/proxy\.settings\.xml\z}
     end
-  end
 
-  context '#initialize' do
-    it 'raises a Thor::Error when the file does not exist' do
-      expect { described_class.new('invalid/file') }.to raise_error(Thor::Error, /file not found/)
-      expect { described_class.new(nil) }.to raise_error(Thor::Error, /file not found/)
+    it 'raises a Thor::Error when the config directory does not exist' do
+      expect { described_class.settings_file('NotAnIntelliJProduct') }.to raise_error(Thor::Error, /directory not found/)
+      expect { described_class.settings_file(nil) }.to raise_error(Thor::Error, /directory not found/)
     end
   end
 
@@ -33,10 +32,6 @@ RSpec.describe Chproxy::IntelliJ::Editor do
 
     it 'returns a Chproxy::IntelliJ::Settings instance' do
       expect(props).to be_a Chproxy::IntelliJ::Settings
-    end
-
-    it 'has changes' do
-      expect(props.changed?).to be_truthy
     end
 
     it 'has the new contents' do

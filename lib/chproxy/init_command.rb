@@ -33,11 +33,15 @@ module Chproxy
     def run_eval(hooks)
       sh = <<-SH
         function chpup() {
+          local _shasum="$(command -v sha1sum || command -v shasum)"
+          local _before="$(env | grep -i '^[^=]*proxy=' | "$_shasum")"
           unset proxy {#{self.class.escape(all_protocols.join(','))}}_proxy
           unset PROXY {#{self.class.escape(all_protocols.join(',').upcase)}}_PROXY
           if [ -f "#{self.class.escape(config)}" ]; then
             . "#{self.class.escape(config)}" $*
           fi
+          local after="$(env | grep -i '^[^=]*proxy=' | "$_shasum")"
+          [[ "$_before" == "$_after" ]] && return 0
 
           #{wrap_hooks(hooks)}
         }
@@ -68,7 +72,7 @@ module Chproxy
     end
 
     def command_args(cmd, argument)
-      return "--intellij=#{self.class.escape(argument)}" if cmd == 'intellij' && argument
+      return "--variant=#{self.class.escape(argument)}" if cmd == 'intellij' && argument
     end
 
     def all_protocols

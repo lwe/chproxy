@@ -11,7 +11,7 @@ module Chproxy
     #
     # NOTE: Currently only supports HTTP proxies and PAC URL, SOCKS proxies are not supported, yet.
     class Settings
-      attr_reader :doc, :orig_doc
+      attr_reader :doc
 
       ENABLED = '<option name="USE_HTTP_PROXY" value="true" />'.freeze
       TEMPLATE = <<-XML.strip
@@ -26,22 +26,16 @@ module Chproxy
         </application>
       XML
 
-      def self.load(path)
-        new File.read(path)
-      end
-
-      def initialize(doc)
-        @orig_doc = doc
+      def initialize
         set(nil, nil, [])
       end
 
-      def changed?
-        to_s != orig_doc
-      end
-
       def set(proxy, auto_proxy, no_proxy = [])
+        @doc = nil
         proxy ||= Chproxy::ProxyURI::NONE
         auto_proxy ||= Chproxy::ProxyURI::NONE
+        return if proxy.empty?
+
         @doc = format TEMPLATE, enabled_tag(proxy).to_s,
                       CGI.escapeHTML(proxy.hostname.to_s),
                       CGI.escapeHTML(proxy.port.to_s),
@@ -51,7 +45,7 @@ module Chproxy
       end
 
       def to_s
-        doc
+        doc.to_s
       end
 
       private

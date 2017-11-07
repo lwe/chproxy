@@ -63,22 +63,4 @@ RSpec.describe Chproxy::Maven::Settings do
       end
     end
   end
-
-  context '#changed?' do
-    subject { described_class.new(doc_chproxied) }
-
-    it 'returns truthy when different to original (<proxies> was cleaned)' do
-      expect(subject.changed?).to be_truthy
-    end
-
-    it 'returns truthy when proxy was added, with different settings' do
-      subject.add :http, Chproxy::ProxyURI.parse('cache:3128'), %w[example.net example.org]
-      expect(subject.changed?).to be_truthy
-    end
-
-    it 'returns falsey when same proxies have been added again' do
-      subject.add :http, Chproxy::ProxyURI.parse('cache:3128')
-      expect(subject.changed?).to be_falsey
-    end
-  end
 end
