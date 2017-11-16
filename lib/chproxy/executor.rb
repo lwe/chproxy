@@ -1,11 +1,13 @@
 module Chproxy
   class Executor
-    def self.rewriter(cli, dest, label = nil)
-      self.new(cli, dest, label) { |content| write(content) }
+    def self.rewriter(cli, dest, **kwargs)
+      self.new(cli, dest, **kwargs) { |content| write(content) }
     end
 
-    def self.deleter(cli, dest, label = nil)
-      self.new(cli, dest, label) { |content| content ? write(content) : unlink }
+    def self.deleter(cli, dest, **kwargs)
+      self.new(cli, dest, **kwargs) do |content|
+        content && !content.empty? ? write(content) : unlink
+      end
     end
 
     attr_reader :cli, :dest, :label, :updater
@@ -48,7 +50,7 @@ module Chproxy
     end
 
     def skip
-      cli.say_status 'SKIP', "chproxy:#{label} still up-to-dat [no changes] (#{dest})", :green
+      cli.say_status 'SKIP', "chproxy:#{label} still up-to-date [no changes] (#{dest})", :green
 
       false
     end

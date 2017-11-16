@@ -5,6 +5,7 @@ require 'pathname'
 
 require 'chproxy/env'
 require 'chproxy/editor'
+require 'chproxy/executor'
 require 'chproxy/init_command'
 
 require 'chproxy/gradle/props'
@@ -52,18 +53,25 @@ module Chproxy
                                 desc: 'The JetBrains product to update, one of: IntelliJIdea, ' \
                                       'IdealC, RubyMine, PhpStorm, WebStorm or AndroidStudio.'
     def intellij
-      config = "#{Chproxy::IntelliJ::Editor.settings_file(options['variant'])}"
+      product = options['variant']
+      config = Chproxy::IntelliJ::Editor.settings_file(product)
       editor = Chproxy::IntelliJ::Editor.new
       executor = Chproxy::Executor.deleter(self, config,
         dry_run: dry_run?,
-        label: "#{options['intellij']} settings")
-      executor.write(editor.rewrite(Chproxy::Env.env))
+        label: "#{product} settings")
+      executor.update(editor.rewrite(Chproxy::Env.env))
     end
 
     map %w[--version -V version] => :version
     desc '--version, -V', 'Print version and exit'
     def version
       puts "chproxy version #{Chproxy::VERSION}"
+    end
+
+    no_commands do
+      def exit_on_failure?
+        true
+      end
     end
 
     private

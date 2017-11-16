@@ -61,7 +61,7 @@ module Chproxy
         eval "\$(#{cli} init - gradle intellij:AndroidStudio)"
 
         \# 2: Create a ~/.chproxy script that sets the proxy, http_proxy and other variables. Like:
-        echo "proxy=example.org" > ~/.chproxy
+        echo "export proxy=example.org" > ~/.chproxy
       SH
       self.class.undent(sh)
     end

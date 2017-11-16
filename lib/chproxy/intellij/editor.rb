@@ -14,7 +14,7 @@ module Chproxy
         dir = Dir["#{Thor::Util.user_home}/Library/Preferences/#{product}*",
                   "#{Thor::Util.user_home}/.#{product}*"].sort.last
 
-        raise Thor::Error, "#{product} configuration directory not found: #{dir}" if !dir || !File.directory?(dir)
+        raise Thor::Error, "No #{product} configuration directory not found." if !dir || !File.directory?(dir)
 
         File.join(dir, 'options', SETTINGS_XML)
       end
