@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'fakefs/safe'
+
 require 'chproxy/env'
 require 'chproxy/intellij/editor'
 
@@ -8,11 +10,20 @@ RSpec.describe Chproxy::IntelliJ::Editor do
   subject { described_class.new }
 
   context '.settings_file' do
-    it 'returns the default settings file for your OS by product' do
-      pending 'depends on locally installed JetBrains products'
-      expect(described_class.settings_file('IntelliJIdea')).to match %r{/\.?IntelliJIdea\d{4}\.\d/options/proxy\.settings\.xml\z}
-      expect(described_class.settings_file('IdeaC')).to match %r{/\.?IdeaC\d{4}\.\d/options/proxy\.settings\.xml\z}
-      expect(described_class.settings_file('AndroidStudio')).to match %r{/\.?AndroidStudio\d{4}/options/proxy\.settings\.xml\z}
+    it 'returns the default settings file for Linux' do
+      FakeFS.with_fresh do
+        FileUtils.mkdir_p "#{ENV['HOME']}/.IntelliJIdea3030.1/options"
+        File.open("#{ENV['HOME']}/.IntelliJIdea3030.1/options/proxy.settings.xml", 'w') { |f| f.write('test') }
+        expect(described_class.settings_file('IntelliJIdea')).to match %r{/\.?IntelliJIdea\d{4}\.\d/options/proxy\.settings\.xml\z}
+      end
+    end
+
+    it 'returns the default settings file for macOS' do
+      FakeFS.with_fresh do
+        FileUtils.mkdir_p "#{ENV['HOME']}/Library/Preferences/AndroidStudio3030.1/options"
+        File.open("#{ENV['HOME']}/Library/Preferences/AndroidStudio3030.1/options/proxy.settings.xml", 'w') { |f| f.write('test') }
+        expect(described_class.settings_file('AndroidStudio')).to match %r{/Library/Preferences/AndroidStudio\d{4}\.\d/options/proxy\.settings\.xml\z}
+      end
     end
 
     it 'raises a Thor::Error when the config directory does not exist' do
