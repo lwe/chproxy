@@ -14,7 +14,7 @@ module Chproxy
 
     def self.deleter(cli, dest, **kwargs)
       new(cli, dest, **kwargs) do |content|
-        content && !content.empty? ? write(content) : unlink
+        !content.to_s.strip.empty? ? write(content) : unlink
       end
     end
 
