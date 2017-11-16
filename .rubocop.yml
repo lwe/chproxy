@@ -13,21 +13,35 @@ Metrics/BlockLength:
 
 Metrics/MethodLength:
   Max: 11
+  Exclude:
+    - lib/chproxy/init_command.rb
 
 Metrics/AbcSize:
   Max: 20
+
+Lint/RescueWithoutErrorClass:
+  Exclude:
+    - 'spec/**/*.rb'
 
 Style/RedundantFreeze:
   Enabled: false
 
 Style/Documentation:
   Exclude:
-    - chproxy.rb
+    - 'spec/**/*.rb'
 
-Style/FrozenStringLiteralComment:
+Style/RescueModifier:
   Exclude:
-    - chproxy.rb
+    - 'spec/**/*.rb'
+
+Style/SafeNavigation:
+  Exclude:
+    - lib/chproxy/executor.rb
 
 Layout/SpaceAroundOperators:
   Exclude:
     - chproxy.rb
+
+Layout/IndentHeredoc:
+  Exclude:
+    - spec/chproxy/init_command_spec.rb

@@ -46,7 +46,7 @@ RSpec.describe Chproxy::InitCommand do
     it 'does not find issues with shellcheck' do
       Tempfile.open('test') do |f|
         f.write subject.run('-', %w[gradle maven gradle intellij:AndroidStudio intellij])
-        expect(system("shellcheck", f.path, "-s", "bash", "-e", "SC2120")).to be_truthy
+        expect(system('shellcheck', f.path, '-s', 'bash', '-e', 'SC2120')).to be_truthy
       end
     end
   end

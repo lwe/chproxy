@@ -34,8 +34,8 @@ module Chproxy
     def gradle(config = "#{Thor::Util.user_home}/.gradle/gradle.properties")
       editor = Chproxy::Editor.new(Chproxy::Gradle::Props, config, protocols)
       executor = Chproxy::Executor.rewriter(self, config,
-        dry_run: dry_run?,
-        label: 'gradle properties')
+                                            dry_run: dry_run?,
+                                            label: 'gradle properties')
       executor.update(editor.rewrite(Chproxy::Env.env))
     end
 
@@ -43,22 +43,22 @@ module Chproxy
     def maven(config = "#{Thor::Util.user_home}/.m2/settings.xml")
       editor = Chproxy::Editor.new(Chproxy::Maven::Settings, config, protocols)
       executor = Chproxy::Executor.rewriter(self, config,
-        dry_run: dry_run?,
-        label: 'maven settings')
+                                            dry_run: dry_run?,
+                                            label: 'maven settings')
       executor.update(editor.rewrite(Chproxy::Env.env))
     end
 
     desc 'intellij [--variant=<product>]', 'Updates the IntelliJ (or other JetBrains products) proxy settings.'
     method_option '--variant', aliases: '-v', banner: '<product>', default: 'IntelliJIdea',
-                                desc: 'The JetBrains product to update, one of: IntelliJIdea, ' \
-                                      'IdealC, RubyMine, PhpStorm, WebStorm or AndroidStudio.'
+                               desc: 'The JetBrains product to update, one of: IntelliJIdea, ' \
+                                     'IdealC, RubyMine, PhpStorm, WebStorm or AndroidStudio.'
     def intellij
       product = options['variant']
       config = Chproxy::IntelliJ::Editor.settings_file(product)
       editor = Chproxy::IntelliJ::Editor.new
       executor = Chproxy::Executor.deleter(self, config,
-        dry_run: dry_run?,
-        label: "#{product} settings")
+                                           dry_run: dry_run?,
+                                           label: "#{product} settings")
       executor.update(editor.rewrite(Chproxy::Env.env))
     end
 

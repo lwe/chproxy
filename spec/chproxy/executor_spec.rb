@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 require 'tempfile'
@@ -18,13 +20,13 @@ RSpec.describe Chproxy::Executor do
     context '#update' do
       it 'rewrites the file if the content differs' do
         expect(subject.update('proxy=proxy:3128')).to be_truthy
-        expect(cli.messages.first).to match /\*yellow\* \[UPDATE\]: chproxy: gradle.*update/
+        expect(cli.messages.first).to match(/\*yellow\* \[UPDATE\]: chproxy: gradle.*update/)
         expect(File.read(dest)).to eq 'proxy=proxy:3128'
       end
 
       it 'skips the update when there are no changes' do
         expect(subject.update('proxy=cache:3128')).to be_falsey
-        expect(cli.messages.first).to match /\*green\* \[SKIP\]: chproxy: gradle.*no change/
+        expect(cli.messages.first).to match(/\*green\* \[SKIP\]: chproxy: gradle.*no change/)
       end
     end
   end
@@ -36,24 +38,24 @@ RSpec.describe Chproxy::Executor do
     context '#update' do
       it 'creates the dest if there is content' do
         expect(subject.update('proxy=proxy:3128')).to be_truthy
-        expect(cli.messages.first).to match /\*yellow\* \[UPDATE\]: chproxy: gradle.*update/
+        expect(cli.messages.first).to match(/\*yellow\* \[UPDATE\]: chproxy: gradle.*update/)
         expect(File.read(subject.dest)).to eq 'proxy=proxy:3128'
       end
 
       it 'rewrites existing content' do
         expect(subject.update('proxy=proxy:3128')).to be_truthy
-        expect(cli.messages.first).to match /\*yellow\* \[UPDATE\]: chproxy: gradle.*update/
+        expect(cli.messages.first).to match(/\*yellow\* \[UPDATE\]: chproxy: gradle.*update/)
         expect(File.read(dest)).to eq 'proxy=proxy:3128'
       end
 
       it 'skips the update when there are no changes' do
         expect(subject.update('proxy=cache:3128')).to be_falsey
-        expect(cli.messages.first).to match /\*green\* \[SKIP\]: chproxy: gradle.*no change/
+        expect(cli.messages.first).to match(/\*green\* \[SKIP\]: chproxy: gradle.*no change/)
       end
 
       it 'deletes the file if there is no content' do
         expect(subject.update(nil)).to be_truthy
-        expect(cli.messages.first).to match /\*red\* \[REMOVE\]: chproxy: gradle.*no proxy/
+        expect(cli.messages.first).to match(/\*red\* \[REMOVE\]: chproxy: gradle.*no proxy/)
         expect(File.file?(dest)).to be_falsey
       end
     end

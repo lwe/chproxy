@@ -1,3 +1,9 @@
+# frozen_string_literal: true
+
+# AdHoc Homebrew formula to install chproxy / chpup on macOS.
+#
+#    brew install https://raw.githubusercontent.com/lwe/chproxy/master/chproxy.rb
+#
 class Chproxy < Formula
   desc 'The missing proxy management CLI for gradle, maven & others.'
   version '0.1.0'

@@ -1,11 +1,19 @@
+# frozen_string_literal: true
+
 module Chproxy
+  # An Executor is required to actually apply changes to any configuration file (or the system).
+  # Currently there are two Executors implemented:
+  #
+  #   * `rewriter`, replaces an existing file with the new contents
+  #   * `deleter`, deletes the document if new content is empty
+  #
   class Executor
     def self.rewriter(cli, dest, **kwargs)
-      self.new(cli, dest, **kwargs) { |content| write(content) }
+      new(cli, dest, **kwargs) { |content| write(content) }
     end
 
     def self.deleter(cli, dest, **kwargs)
-      self.new(cli, dest, **kwargs) do |content|
+      new(cli, dest, **kwargs) do |content|
         content && !content.empty? ? write(content) : unlink
       end
     end
@@ -30,7 +38,7 @@ module Chproxy
       @cli = cli
       @dest = dest
       @label = label ? " #{label}" : ''
-      @dry_run = @dry_run
+      @dry_run = dry_run
       @updater = block
     end
 
@@ -57,7 +65,11 @@ module Chproxy
 
     def existing_content
       return unless File.file?(dest)
-      @existing_content ||= File.read(dest) rescue nil
+      @existing_content ||= begin
+        File.read(dest)
+      rescue StandardError
+        nil
+      end
     end
   end
 end

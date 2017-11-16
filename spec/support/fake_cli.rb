@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class FakeCli
   attr_reader :messages
   def initialize
