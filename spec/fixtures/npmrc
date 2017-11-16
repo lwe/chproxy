@@ -1,0 +1,10 @@
+# proxy=didum
+color=true
+ca[]="pem"
+otp=1234
+
+# MARK: chproxy (automatically added by chproxy npm): BEGIN
+proxy="foobar"
+# MARK: chproxy END
+
+foo-proxy="didum"
