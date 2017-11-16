@@ -35,7 +35,7 @@ or Linux.
    ```bash
    #!/bin/bash
 
-   # macOS command to check for an autoconfigured proxy
+   # macOS command to check for an auto-configured proxy
    function isWork() {
      scutil --proxy | grep ProxyAutoConfigURLString | grep --silent wpad.example.net && \
        host cache.example.net | grep --silent 'has address'     
@@ -51,7 +51,7 @@ or Linux.
 2. Add the following to your `.bashrc` or `.zshrc` to enable the `chpup` alias with the gradle and
    maven plugins. This also runs `chpup` directly.
    ```bash
-   eval "$(chproxy init - gradle maven)"
+   eval "$(chproxy init - gradle maven npm intellij:AndroidStudio)"
    ```
 
 3. In addition, when switching networks, run `chpup` anytime. And, yeah in all your open shells.
@@ -62,6 +62,7 @@ The `chproxy` helps and currently supports changing the proxy settings for:
 
 - :white_check_mark: gradle, with `chproxy gradle [--dry-run] [<config>]`
 - :white_check_mark: maven, with `chproxy maven [--dry-run] [<config>]`
+- :white_check_mark: npm/yarn, with `chproxy npm [--dry-run] [<config>]`
 - :white_check_mark: IntelliJ (supports proxy.pac) and other JetBrains products, with `chproxy intellij [--dry-run] [<config>]`
 
 The `chproxy [tool]` CLI works by reading the current environment proxy variables and updating the

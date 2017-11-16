@@ -5,4 +5,9 @@ set -vx
 
 bundle install
 
-# Do any other automated setup that you need to do here
+set +vx
+echo ""
+echo "WELCOME. You are totally ready to develop on chproxy, next things you can try:"
+echo " - run the test suite: ./bin/rspec spec;"
+echo " - check the cops:     ./bin/rubocop -D;"
+echo " - or ... start coding."

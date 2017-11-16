@@ -10,6 +10,7 @@ require 'chproxy/init_command'
 
 require 'chproxy/gradle/props'
 require 'chproxy/maven/settings'
+require 'chproxy/npm/cmd'
 require 'chproxy/intellij/editor'
 require 'chproxy/intellij/settings'
 
@@ -61,6 +62,8 @@ module Chproxy
                                            label: "#{product} settings")
       executor.update(editor.rewrite(Chproxy::Env.env))
     end
+
+    include Chproxy::Npm::Cmd
 
     map %w[--version -V version] => :version
     desc '--version, -V', 'Print version and exit'
